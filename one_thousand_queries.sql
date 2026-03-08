@@ -105,4 +105,54 @@ RENAME to `2024_staging`;
 SELECT *
 FROM `police-staffing-spd-west.spd_west.INFORMATION_SCHEMA.COLUMNS`
 
--- Page 116 checking for duplicates
+-- 20. Checking for cad event numbers with multiple entries, possible insights could be most complex case as the top cad event number has 47 line items associated with it. 
+SELECT 
+  COUNT(*) as cad_duplicates_count,
+  cad_event_number
+FROM `police-staffing-spd-west.spd_west.twenty_twenty_four_staging`
+GROUP BY cad_event_number
+ORDER BY cad_duplicates_count DESC;
+
+-- 21. Finding number of different call_types  in 2024
+SELECT
+  COUNT(*) AS call_type_aggregated,
+  call_type
+FROM `police-staffing-spd-west.spd_west.twenty_twenty_four_staging`
+GROUP BY call_type;
+
+-- 22. Finding number of calls associated with different priority levels, grouped by priority and ordered to indicate which priority has the highest number of calls
+SELECT
+  COUNT(*) AS number_of_calls_by_priority,
+  priority
+FROM `police-staffing-spd-west.spd_west.twenty_twenty_four_staging`
+GROUP BY priority
+ORDER BY priorities DESC;
+
+--23. How many calls were responded to by CARE, SPD or both.
+SELECT 
+  cad_event_response_category,
+  COUNT(*) AS number_of_calls_by_response_category
+FROM `police-staffing-spd-west.spd_west.twenty_twenty_four_staging`
+GROUP BY cad_event_response_category;
+
+--24. Fixing datatype in date/time categories. Different columns use different formats. Additionally, while some columns have numeric month types (%m), others have abbreviated month names, necessitating %b.
+CREATE OR REPLACE TABLE `police-staffing-spd-west.spd_west.twenty_twenty_four_staging` AS 
+SELECT
+  * EXCEPT(cad_event_original_time_queued, first_spd_call_sign_at_scene_time, call_sign_inservice_time, call_sign_at_scene_time, last_spd_call_sign_dispatch_time, first_spd_call_sign_dispatch_time, call_sign_dispatch_time, cad_event_arrived_time),
+  SAFE.PARSE_DATETIME('%m/%d/%Y %I:%M:%S %p', cad_event_original_time_queued)
+    AS cad_event_original_time_queued,
+  SAFE.PARSE_DATETIME('%Y %b %d %I:%M:%S %p', first_spd_call_sign_at_scene_time)
+    AS first_spd_call_sign_at_scene_time,
+  SAFE.PARSE_DATETIME('%Y %b %d %I:%M:%S %p', call_sign_inservice_time)
+    AS call_sign_inservice_time,
+  SAFE.PARSE_DATETIME('%Y %b %d %I:%M:%S %p', call_sign_at_scene_time)
+    AS call_sign_at_scene_time,
+  SAFE.PARSE_DATETIME('%Y %b %d %I:%M:%S %p', last_spd_call_sign_dispatch_time)
+    AS last_spd_call_sign_dispatch_time,
+  SAFE.PARSE_DATETIME('%Y %b %d %I:%M:%S %p', first_spd_call_sign_dispatch_time)
+    AS first_spd_call_sign_dispatch_time,
+  SAFE.PARSE_DATETIME('%Y %b %d %I:%M:%S %p', call_sign_dispatch_time)
+    AS call_sign_dispatch_time,
+  SAFE.PARSE_DATETIME('%Y %b %d %I:%M:%S %p', cad_event_arrived_time)
+    AS cad_event_arrived_time,
+FROM `police-staffing-spd-west.spd_west.twenty_twenty_four_staging`
