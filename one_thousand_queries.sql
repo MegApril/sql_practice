@@ -156,3 +156,47 @@ SELECT
   SAFE.PARSE_DATETIME('%Y %b %d %I:%M:%S %p', cad_event_arrived_time)
     AS cad_event_arrived_time,
 FROM `police-staffing-spd-west.spd_west.twenty_twenty_four_staging`
+
+--25. Verifying correct casting by removing commas from columns that will be changed to INT64.
+SELECT
+  * EXCEPT(care_call_sign_total_service_time_in_seconds, dispatch_latitude, dispatch_longitude, coresponse_call_sign_total_service_time_in_seconds, spd_call_sign_total_service_time_in_seconds, call_sign_total_service_time_in_seconds, first_spd_call_sign_dispatch_delay_time_in_seconds, first_spd_call_sign_response_time_in_seconds, call_sign_dispatch_delay_time_in_seconds, call_sign_response_time_seconds, cad_event_first_response_time_seconds),
+  REGEXP_REPLACE(care_call_sign_total_service_time_in_seconds, ',', '') AS care_call_sign_total_service_time_in_seconds,
+  REGEXP_REPLACE(coresponse_call_sign_total_service_time_in_seconds, ',', '') AS coresponse_call_sign_total_service_time_in_seconds,
+  REGEXP_REPLACE(spd_call_sign_total_service_time_in_seconds, ',', '') AS spd_call_sign_total_service_time_in_seconds,
+  REGEXP_REPLACE(call_sign_total_service_time_in_seconds, ',', '') AS call_sign_total_service_time_in_seconds,
+  REGEXP_REPLACE(first_spd_call_sign_dispatch_delay_time_in_seconds, ',', '') AS first_spd_call_sign_dispatch_delay_time_in_seconds,
+  REGEXP_REPLACE(first_spd_call_sign_response_time_in_seconds, ',', '') AS first_spd_call_sign_response_time_in_seconds,
+  REGEXP_REPLACE(call_sign_dispatch_delay_time_in_seconds, ',', '') AS call_sign_dispatch_delay_time_in_seconds,
+  REGEXP_REPLACE(call_sign_response_time_seconds, ',', '') AS call_sign_response_time_seconds,
+  REGEXP_REPLACE(cad_event_first_response_time_seconds, ',', '') AS cad_event_first_response_time_seconds,
+FROM `police-staffing-spd-west.spd_west.twenty_twenty_four_staging`;
+
+--26.  Updating table to reflect the previously run datatype changes
+CREATE OR REPLACE TABLE `police-staffing-spd-west.spd_west.twenty_twenty_four_staging` AS
+SELECT
+  * EXCEPT(care_call_sign_total_service_time_in_seconds, dispatch_latitude, dispatch_longitude, coresponse_call_sign_total_service_time_in_seconds, spd_call_sign_total_service_time_in_seconds, call_sign_total_service_time_in_seconds, first_spd_call_sign_dispatch_delay_time_in_seconds, first_spd_call_sign_response_time_in_seconds, call_sign_dispatch_delay_time_in_seconds, call_sign_response_time_seconds, cad_event_first_response_time_seconds),
+  REGEXP_REPLACE(care_call_sign_total_service_time_in_seconds, ',', '') AS care_call_sign_total_service_time_in_seconds,
+  REGEXP_REPLACE(coresponse_call_sign_total_service_time_in_seconds, ',', '') AS coresponse_call_sign_total_service_time_in_seconds,
+  REGEXP_REPLACE(spd_call_sign_total_service_time_in_seconds, ',', '') AS spd_call_sign_total_service_time_in_seconds,
+  REGEXP_REPLACE(call_sign_total_service_time_in_seconds, ',', '') AS call_sign_total_service_time_in_seconds,
+  REGEXP_REPLACE(first_spd_call_sign_dispatch_delay_time_in_seconds, ',', '') AS first_spd_call_sign_dispatch_delay_time_in_seconds,
+  REGEXP_REPLACE(first_spd_call_sign_response_time_in_seconds, ',', '') AS first_spd_call_sign_response_time_in_seconds,
+  REGEXP_REPLACE(call_sign_dispatch_delay_time_in_seconds, ',', '') AS call_sign_dispatch_delay_time_in_seconds,
+  REGEXP_REPLACE(call_sign_response_time_seconds, ',', '') AS call_sign_response_time_seconds,
+  REGEXP_REPLACE(cad_event_first_response_time_seconds, ',', '') AS cad_event_first_response_time_seconds,
+FROM `police-staffing-spd-west.spd_west.twenty_twenty_four_staging`;
+
+-- 27. Casting previous columns that included seconds as INT64 data types
+CREATE OR REPLACE TABLE `police-staffing-spd-west.spd_west.twenty_twenty_four_staging` AS
+SELECT
+  * EXCEPT(care_call_sign_total_service_time_in_seconds, coresponse_call_sign_total_service_time_in_seconds, spd_call_sign_total_service_time_in_seconds, call_sign_total_service_time_in_seconds, first_spd_call_sign_dispatch_delay_time_in_seconds, first_spd_call_sign_response_time_in_seconds, call_sign_dispatch_delay_time_in_seconds, call_sign_response_time_seconds, cad_event_first_response_time_seconds),
+  SAFE_CAST(care_call_sign_total_service_time_in_seconds AS INT64) AS care_call_sign_total_service_time_in_seconds,
+  SAFE_CAST(coresponse_call_sign_total_service_time_in_seconds AS INT64) AS coresponse_call_sign_total_service_time_in_seconds,
+  SAFE_CAST(spd_call_sign_total_service_time_in_seconds AS INT64) AS spd_call_sign_total_service_time_in_seconds,
+  SAFE_CAST(call_sign_total_service_time_in_seconds AS INT64) AS call_sign_total_service_time_in_seconds,
+  SAFE_CAST(first_spd_call_sign_dispatch_delay_time_in_seconds AS INT64) AS first_spd_call_sign_dispatch_delay_time_in_seconds,
+  SAFE_CAST(first_spd_call_sign_response_time_in_seconds AS INT64) AS first_spd_call_sign_response_time_in_seconds,
+  SAFE_CAST(call_sign_dispatch_delay_time_in_seconds AS INT64) AS call_sign_dispatch_delay_time_in_seconds,
+  SAFE_CAST(call_sign_response_time_seconds AS INT64) AS call_sign_response_time_seconds,
+  SAFE_CAST(cad_event_first_response_time_seconds AS INT64) AS cad_event_first_response_time_seconds,
+FROM `police-staffing-spd-west.spd_west.twenty_twenty_four_staging`;
