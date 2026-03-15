@@ -200,3 +200,60 @@ SELECT
   SAFE_CAST(call_sign_response_time_seconds AS INT64) AS call_sign_response_time_seconds,
   SAFE_CAST(cad_event_first_response_time_seconds AS INT64) AS cad_event_first_response_time_seconds,
 FROM `police-staffing-spd-west.spd_west.twenty_twenty_four_staging`;
+
+-- 28. Playing with substrings
+SELECT 
+  call_type, 
+  SUBSTR(call_type, 0, 5) AS call_type_substring
+FROM `police-staffing-spd-west.spd_west.twenty_twenty_four_staging`
+LIMIT 5;
+
+-- 29. Playing with INSTRING
+SELECT 
+  INSTR(UPPER(call_type), 'OF') AS position_of_of,
+  call_type
+FROM `police-staffing-spd-west.spd_west.twenty_twenty_four_staging`
+WHERE INSTR(UPPER(call_type), 'OF') > 0;
+--LIMIT 5;
+
+-- 30. Checking that cleaning `cad_event_arrived_time` didn't result in wrongful NULL's by verifying that the number of NULL values matches in both tables.
+SELECT 
+ cad_event_number,
+ cad_event_arrived_time
+FROM `police-staffing-spd-west.spd_west.2024`
+WHERE cad_event_arrived_time IS NULL;
+
+SELECT 
+ cad_event_number,
+ cad_event_arrived_time
+FROM `police-staffing-spd-west.spd_west.twenty_twenty_four_staging`
+WHERE cad_event_arrived_time IS NULL;
+
+-- 31. Number of unique CAD events
+SELECT 
+ COUNT(DISTINCT(cad_event_number)),
+FROM `police-staffing-spd-west.spd_west.twenty_twenty_four_staging`;
+
+-- 32. Determining which cad events had the most entries, which could indicate the most complex or most time consuming cases
+SELECT 
+ cad_event_number,
+ COUNT(cad_event_number) AS number_of_entries
+FROM `police-staffing-spd-west.spd_west.twenty_twenty_four_staging`
+GROUP BY  cad_event_number
+ORDER BY number_of_entries DESC;
+
+-- 33. Find all calls where the response time was longer than the average response time for the entire dataset.
+SELECT *
+FROM `police-staffing-spd-west.spd_west.twenty_twenty_four_staging`
+WHERE (cad_event_first_response_time_seconds/60) >
+-- returns average response time for 2024 calls
+(SELECT 
+  AVG(response_time_in_minutes)
+  FROM
+    -- Inner subquery that returns response time in minutes for each distinct cad event.
+    (SELECT 
+      DISTINCT(cad_event_number),
+      (cad_event_first_response_time_seconds/60) AS response_time_in_minutes
+    FROM `police-staffing-spd-west.spd_west.twenty_twenty_four_staging`))
+
+-- 34.
