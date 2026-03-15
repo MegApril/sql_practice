@@ -270,3 +270,23 @@ WHERE CAST(count_of_officers AS INT64) >
       SUM(CAST(count_of_officers AS INT64)) AS total_officers_for_event
     FROM `police-staffing-spd-west.spd_west.twenty_twenty_four_staging`
     GROUP BY cad_event_number))
+
+-- 35. Find calls whose service time is greater than the maximum service time for Priority 3 calls.
+SELECT 
+DISTINCT(cad_event_number),
+MAX(spd_call_sign_total_service_time_in_seconds)
+FROM `police-staffing-spd-west.spd_west.twenty_twenty_four_staging`
+WHERE spd_call_sign_total_service_time_in_seconds > 
+( -- selects max call time for priority 3 calls
+  SELECT 
+    MAX(spd_call_sign_total_service_time_in_seconds)
+  FROM
+  ( -- filters for priority 3 calls
+    SELECT *
+    FROM `police-staffing-spd-west.spd_west.twenty_twenty_four_staging`
+    WHERE CAST(priority AS INT64) = 3
+  )
+)
+GROUP BY cad_event_number;
+
+-- 36. Find all calls that happened in precincts where the average response time exceeds 10 minutes.
