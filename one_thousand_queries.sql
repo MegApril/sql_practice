@@ -256,4 +256,17 @@ WHERE (cad_event_first_response_time_seconds/60) >
       (cad_event_first_response_time_seconds/60) AS response_time_in_minutes
     FROM `police-staffing-spd-west.spd_west.twenty_twenty_four_staging`))
 
--- 34.
+-- 34. Find all calls where the number of officers is greater than the average number of officers dispatched.
+SELECT *
+FROM `police-staffing-spd-west.spd_west.twenty_twenty_four_staging`
+WHERE CAST(count_of_officers AS INT64) >
+-- Returns average number of officers for 2024 calls
+(SELECT 
+  AVG(total_officers_for_event)
+  FROM
+    -- Inner subquery that returns total officers called for each distinct cad event.
+    (SELECT 
+      DISTINCT(cad_event_number),
+      SUM(CAST(count_of_officers AS INT64)) AS total_officers_for_event
+    FROM `police-staffing-spd-west.spd_west.twenty_twenty_four_staging`
+    GROUP BY cad_event_number))
