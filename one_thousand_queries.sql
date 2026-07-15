@@ -298,3 +298,44 @@ SELECT
 FROM
   job_postings_fact AS job_postings
 INNER JOIN skills_job_dim AS skills_to_job ON job_postings.job_id = skills_to_job.job_id
+
+-- 38. Data Lemur
+SELECT 
+  user_id,
+  stars
+FROM 
+  reviews
+WHERE
+  stars = '3';
+
+-- 39. Data Lemur
+SELECT *
+FROM
+  products;
+
+-- 40. Data Lemur
+SELECT *
+FROM
+  tablee
+WHERE
+  condition1
+  AND condition2
+  OR condition3;
+
+-- 41. Data Leumr
+SELECT *
+FROM
+  reviews
+WHERE
+  stars < 4
+  AND user_id = 362;
+
+-- 42. Data Lemur
+SELECT *
+FROM
+  reviews
+WHERE
+  stars = 4
+AND product_id =! 50001;
+
+-- 43. Data Lemur
