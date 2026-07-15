@@ -290,3 +290,11 @@ WHERE spd_call_sign_total_service_time_in_seconds >
 GROUP BY cad_event_number;
 
 -- 36. Find all calls that happened in precincts where the average response time exceeds 10 minutes.
+-- 37. Note for Query in Luke Barousse's video SQL for Data Analytics
+SELECT
+  job_postings.job_id,
+  job_postings.job_title,
+  skills_to_job.skill_id
+FROM
+  job_postings_fact AS job_postings
+INNER JOIN skills_job_dim AS skills_to_job ON job_postings.job_id = skills_to_job.job_id
